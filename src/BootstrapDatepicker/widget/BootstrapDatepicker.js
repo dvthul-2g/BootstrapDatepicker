@@ -1,6 +1,6 @@
-// BEGIN CODE BootstrapDatepicker.widget.BootstrapDatepicker
-/*jslint white:true, nomen: true, plusplus: true */
-/*global mx, define, require, browser, devel, console */
+
+/*jslint white:true, devel:true*/
+/*global mx, , require, browser, console */
 /*mendix */
 /*
     BootstrapDatepicker
@@ -14,8 +14,6 @@
     @license   : Apache 2
 	based on http://eternicode.github.io/bootstrap-datepicker
 */
-mxui.dom.addCss(require.toUrl("BootstrapDatepicker", "css/datepicker.css"));
-mxui.dom.addCss(require.toUrl("BootstrapDatepicker", "css/datepicker3.css"));
 // Required module list. Remove unnecessary modules, you can always get them back from the boilerplate.
 require({
     packages: [{ name: 'jquery', location: '../../widgets/BootstrapDatepicker/lib', main: 'jquery-1.11.2.min' },
@@ -30,12 +28,10 @@ require({
 	'mxui/widget/_WidgetBase', 
 	'dijit/_TemplatedMixin',
     'mxui/dom', 
-	'dojo/dom', 
-	'dojo/query', 
-	'dojo/dom-prop', 'dojo/dom-geometry', 'dojo/dom-class', 'dojo/dom-style', 'dojo/dom-construct', 'dojo/_base/array', 'dojo/_base/lang', 'dojo/text',
+	'dojo/dom-construct', 'dojo/_base/lang', 'dojo/text',
 	'dojo/_base/kernel',
     'jquery', 'dojo/text!BootstrapDatepicker/widget/template/BootstrapDatepicker.html', 'btdatepicker', 'dpengb', 'dpde', 'dpfr', 'dpnl', 'dpde'
-], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, domQuery, domProp, domGeom, domClass, domStyle, domConstruct, dojoArray, lang, text, kernel, $, widgetTemplate, btdatepicker, dpengb, dpfr, dpnl, dpde) {
+], function (declare, _WidgetBase, _TemplatedMixin, dom, domConstruct, lang, text, kernel, $, widgetTemplate, btdatepicker, dpengb, dpfr, dpnl, dpde) {
     'use strict';
     
     // Declare widget's prototype.
@@ -59,7 +55,7 @@ require({
             var div = dom.create('div' , { 'id' : id } );
 			this.domNode.appendChild(div);
 			this.selector = '#' + id + ' input';
-			if (this.displaytype=="range" && (this.dateattrto==null || this.dateattrto==undefined || this.dateattr==this.dateattrto)) {
+			if (this.displaytype==="range" && (this.dateattrto===null || this.dateattrto===undefined || this.dateattr===this.dateattrto)) {
 				this.displaytype = "textinput";
 				console.log("range without second date attribute provided: fallback to text input");
 			}
@@ -94,7 +90,7 @@ require({
 				language: locale,
 				calendarWeeks: this.calendarweeks,
 				weekStart: this.weekstart,
-				todayBtn: this.todaybutton==true?"Linked":false,
+				todayBtn: this.todaybutton===true?"Linked":false,
 				clearBtn: this.clearbutton,
 				autoclose: this.autoclose,
 				daysOfWeekDisabled: this.daysofweekdisabled,
@@ -144,7 +140,7 @@ require({
 		update: function (obj, callback) {
 
             this._contextObj = obj;
-            this._resetSubscriptions();
+            this.resetSubscriptions();
             this._updateRendering(obj);
 			
             if (callback) {
@@ -238,7 +234,7 @@ require({
 			
 		},		
 		
-       _resetSubscriptions: function () {
+       resetSubscriptions: function () {
 			var objHandle = null, 
 				attrHandle = null, 
 				validationHandle = null,
@@ -290,4 +286,4 @@ require({
     });
 });
 
-// END CODE BootstrapDatepicker.widget.BootstrapDatepicker;
+
