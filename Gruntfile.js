@@ -1,4 +1,4 @@
-// Generated on 2016-06-02 using generator-mendix 1.3.6 :: git+https://github.com/mendix/generator-mendix.git
+// Generated on 2017-07-03 using generator-mendix 2.0.4 :: git+https://github.com/mendix/generator-mendix.git
 /*jshint -W069*/
 /*global module*/
 "use strict";

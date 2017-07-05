@@ -16,40 +16,50 @@
 */
 // Required module list. Remove unnecessary modules, you can always get them back from the boilerplate.
 require({
-    packages: [{ name: 'jquery', location: '../../widgets/BootstrapDatepicker/lib', main: 'jquery-1.11.2.min' },
+    packages: [{ name: 'jquery', location: '../../widgets/BootstrapDatepicker/lib', main: 'jquery-1.11.2' },
 	           { name: 'btdatepicker', location: '../../widgets/BootstrapDatepicker/lib', main: 'bootstrap-datepicker' },
-	           { name: 'dpengb', location: '../../widgets/BootstrapDatepicker/lib/locales', main: 'bootstrap-datepicker.en-GB' },
-	           { name: 'dpnl', location: '../../widgets/BootstrapDatepicker/lib/locales', main: 'bootstrap-datepicker.nl' },
-	           { name: 'dpde', location: '../../widgets/BootstrapDatepicker/lib/locales', main: 'bootstrap-datepicker.de' },
-	           { name: 'dpfr', location: '../../widgets/BootstrapDatepicker/lib/locales', main: 'bootstrap-datepicker.fr' }
 			   ]
 }, [
     'dojo/_base/declare', 
-	'mxui/widget/_WidgetBase', 
+	'mxui/widget/_WidgetBase',  
 	'dijit/_TemplatedMixin',
     'mxui/dom', 
-	'dojo/dom-construct', 'dojo/_base/lang', 'dojo/text',
-	'dojo/_base/kernel',
-    'jquery', 'dojo/text!BootstrapDatepicker/widget/template/BootstrapDatepicker.html', 'btdatepicker', 'dpengb', 'dpde', 'dpfr', 'dpnl', 'dpde'
-], function (declare, _WidgetBase, _TemplatedMixin, dom, domConstruct, lang, text, kernel, $, widgetTemplate, btdatepicker, dpengb, dpfr, dpnl, dpde) {
+	'dojo/dom-construct',
+	'dojo/_base/lang', 
+	'dojo/text', 
+	'dojo/_base/kernel', 
+	'dojo/dom-class',
+    'jquery',  
+	'btdatepicker' 
+], function (declare, _WidgetBase, _TemplatedMixin, dom, domConstruct, lang, text, kernel, domClass, jQuery, btdatepicker) {
     'use strict';
-    
+    var $ = jQuery.noConflict(true);
     // Declare widget's prototype.
-    return declare('BootstrapDatepicker.widget.BootstrapDatepicker', [ _WidgetBase, _TemplatedMixin ], {
-        // _TemplatedMixin will create our dom node using this HTML template.
-        templateString: widgetTemplate,
+    return declare('BootstrapDatepicker.widget.BootstrapDatepicker', [ _WidgetBase, ], {
 
         // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
         _handle: [],
         _contextObj: null,
-		selector: '',
+		selector: null,
 		enabled: true,
+		date1: null,
+		date2: null,
 
-        // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
+			dom.addCss('widgets/BootstrapDatepicker/widget/ui/bootstrap-datepicker3.css');
+			$.fn.datepicker.dates['nl'] = {
+				days: ["Zondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"],
+				daysShort: ["Zo", "Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"],
+				daysMin: ["Zo", "Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"],
+				months: ["Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli", "Augustus", "September", "Oktober", "November", "December"],
+				monthsShort: ["Jan", "Feb", "Mrt", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"],
+				today: "Vandaag",
+				clear: "Wissen",
+				weekStart: 1,
+				format: "dd-mm-yyyy"
+			};
         },
 
-        // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
         postCreate: function () {
 			var id = this.id + "_cal";
             var div = dom.create('div' , { 'id' : id } );
@@ -57,7 +67,7 @@ require({
 			this.selector = '#' + id + ' input';
 			if (this.displaytype==="range" && (this.dateattrto===null || this.dateattrto===undefined || this.dateattr===this.dateattrto)) {
 				this.displaytype = "textinput";
-				console.log("range without second date attribute provided: fallback to text input");
+				logger.debug("range without second date attribute provided: fallback to text input");
 			}
 			var ro = this.readonly?{ readonly : 'true'}:{};
 			switch (this.displaytype) { 
@@ -74,8 +84,8 @@ require({
 					span.appendChild(dom.create('i', { 'class': 'glyphicon glyphicon-th' }));					
 					break;
 				case "embedded": 
-					this.selector = '#' + id + ' .embedded';
-					div.appendChild(dom.create('div', { 'class': 'embedded' }));
+					this.selector = '#' + id + ' .div';
+					div.appendChild(dom.create('div', { 'class': 'embedded', 'data-date' : "12/03/2012" }));
 					break;
 				case "range": 
 					this.selector = '#' + id + ' .input-daterange';
@@ -86,6 +96,8 @@ require({
 					break;
 			}
 			var locale = this.getLocale();
+			logger.debug('btdatepicker', btdatepicker, locale);
+			logger.debug('$', $.fn.datepicker); 
 			$(this.selector).datepicker({
 				language: locale,
 				calendarWeeks: this.calendarweeks,
@@ -98,16 +110,18 @@ require({
 				startDate: this.limitstart,
 				endDate: this.limitend,
 				enableOnReadonly: false
-			})     
-			.on('changeDate', dojo.hitch(this, this.dateChanged));
+			}).on('changeDate', dojo.hitch(this, this.dateChanged));
         },
+		
 		getLocale: function() {
 			if (kernel) {
 				return kernel.locale;
 			} 
 			return mx.ui.getLocale();
 		},
+		
 		dateChanged: function (ev) {
+			logger.debug('datechanged', ev);
 			var d = new Date(ev.date);
 			if (this._contextObj && ev.type=="changeDate" && ev.date && (!isNaN(d.getTime())) && (d.getYear()>0)) {
 				ev.date.setHours(this.defaulthours);
@@ -115,6 +129,7 @@ require({
 				if(ev.target.attributes.name && ev.target.attributes.name.value=="end" && this.dateattrto) {
 					this._contextObj.set(this.dateattrto, ev.date);
 				} else {
+					logger.debug('set date', ev.date);
 					this._contextObj.set(this.dateattr, ev.date);
 				}
 				this.callmf();
@@ -132,16 +147,19 @@ require({
 					callback: function (obj) {
 					},
 					error: function (error) {
-						console.log(this.id + ': An error occurred while executing microflow: ' + error.description);
+						logger.debug(this.id + ': An error occurred while executing microflow: ' + error.description);
 					}
 				}, this);		
 			}
 		},
+		
 		update: function (obj, callback) {
-
-            this._contextObj = obj;
-            this.resetSubscriptions();
-            this._updateRendering(obj);
+			logger.debug('update');
+			if (this._contextObj != obj) {
+				this._contextObj = obj;
+				this.resetSubscriptions();
+			}
+			this._updateRendering(obj);
 			
             if (callback) {
 				callback();
@@ -171,14 +189,14 @@ require({
 				}
 				$(this.selector).data('datepicker').updateDates();				
 			} else {
-				if (date1) {
-					$(this.selector).datepicker('setDate', new Date(obj.get(this.dateattr)));
+				if (date1 != this.date1) {
+					$("#" + this.id).datepicker('update', new Date(date1));
+					this.date1 = date1;
 				}
 			}
 			this._clearValidations();
         },
 
-        // mxui.widget._WidgetBase.enable is called when the widget should enable editing. Implement to enable editing if widget is input widget.
         enable: function () {
 			if (!this.readonly) {
 				this.enabled = true;
@@ -188,19 +206,18 @@ require({
 			}
         },
 
-        // mxui.widget._WidgetBase.enable is called when the widget should disable editing. Implement to disable editing if widget is input widget.
         disable: function () {
 			this.enabled = false;
 			$(this.selector).attr("readonly", "true");
 			domClass.add(this.domNode, "btdatepicker-disabled");
-			
         },
 
-        // mxui.widget._WidgetBase.uninitialize is called when the widget is destroyed. Implement to do special tear-down work.
         uninitialize: function () {
 			if(this._handles){
 				this._handles.forEach(function (handle, i) {
-					mx.data.unsubscribe(handle);
+					if (handle) {
+						mx.data.unsubscribe(handle);
+					}
 				});
 			}
 		},
@@ -231,12 +248,12 @@ require({
 				innerHTML: msg });
 			
 			this.domNode.appendChild(this._alertdiv);
-			
 		},		
 		
-       resetSubscriptions: function () {
+		resetSubscriptions: function () {
 			var objHandle = null, 
 				attrHandle = null, 
+				attrHandleTo = null,
 				validationHandle = null,
 				attrHandle2 = null;
 			
@@ -259,15 +276,33 @@ require({
                     guid: this._contextObj.getGuid(),
                     attr: this.dateattr,
 					callback: lang.hitch(this,function(guid,attr,attrValue) {
-						this._updateRendering();
+						logger.debug('update attr', new Date(attrValue), this.id, this.selector);
+						$("#" + this.id).datepicker('update', new Date(attrValue));
+						this.date1 = attrValue;
+						//this._updateRendering();
 					})
                 });
+				if (this.dateattrto) {
+					attrHandleTo = this.subscribe({
+						guid: this._contextObj.getGuid(),
+						attr: this.dateattrto,
+						callback: lang.hitch(this,function(guid,attr,attrValue) {
+							$(this.selector).find('#endTime').datepicker('update', new Date(attrValue)); 
+							logger.debug('update attr', attr, attrValue);
+							this._updateRendering();
+						})
+					});
+				}
 				if (this.editableattr) {
 					attrHandle2 = this.subscribe({
 						guid: this._contextObj.getGuid(),
 						attr: this.editableattr,
 						callback: lang.hitch(this,function(guid,attr,attrValue) {
-							this._updateRendering();
+							if (attrValue) {
+								this.enable();
+							} else {
+								this.disable();
+							}
 						})
 					});		
 				}
@@ -278,7 +313,7 @@ require({
 					callback : lang.hitch(this,this._handleValidation)
 				});
 			
-				this._handles = [objHandle, attrHandle, validationHandle, attrHandle2];
+				this._handles = [objHandle, attrHandle, validationHandle, attrHandle2, attrHandleTo];
             }
         }		
 

@@ -15,6 +15,6 @@
 		weekStart: 1,
 		format: "dd-mm-yyyy"
 	};
-}(jQuery));
+}($));
 
 // END CODE BootstrapDatepicker.widget.BootstrapDatepicker
