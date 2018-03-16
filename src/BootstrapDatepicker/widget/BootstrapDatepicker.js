@@ -1,4 +1,3 @@
-
 /*jslint white:true, devel:true*/
 /*global mx, , require, browser, console */
 /*mendix */
@@ -6,59 +5,48 @@
     BootstrapDatepicker
     ========================
 
-    @file      : BootstrapDatepicker.js
-    @version   : 1.05
+    @file      : BootstrapDatepicker.js 
+    @version   : 2.00
     @author    : Chris de Gelder
-    @date      : 1-4-2015
+    @date      : 16-3-2018
     @copyright : Chris de Gelder
     @license   : Apache 2
-	based on http://eternicode.github.io/bootstrap-datepicker
+	based on https://uxsolutions.github.io/bootstrap-datepicker
 */
 // Required module list. Remove unnecessary modules, you can always get them back from the boilerplate.
-require({
-    packages: [{ name: 'jquery', location: '../../widgets/BootstrapDatepicker/lib', main: 'jquery-1.11.2' },
-	           { name: 'btdatepicker', location: '../../widgets/BootstrapDatepicker/lib', main: 'bootstrap-datepicker' },
-			   ]
-}, [
-    'dojo/_base/declare', 
+define([
+    'dojo/_base/declare',  
 	'mxui/widget/_WidgetBase',  
-	'dijit/_TemplatedMixin',
     'mxui/dom', 
 	'dojo/dom-construct',
 	'dojo/_base/lang', 
 	'dojo/text', 
 	'dojo/_base/kernel', 
 	'dojo/dom-class',
-    'jquery',  
-	'btdatepicker' 
-], function (declare, _WidgetBase, _TemplatedMixin, dom, domConstruct, lang, text, kernel, domClass, jQuery, btdatepicker) {
+    'BootstrapDatepicker/lib/jquery',  
+	'BootstrapDatepicker/lib/bootstrap-datepicker'
+	 
+], function (declare, _WidgetBase, dom, domConstruct, lang, text, kernel, domClass, _jquery, btdatepicker) {
     'use strict';
-    var $ = jQuery.noConflict(true);
+    var $ = _jquery.noConflict(true);
+	console.log('$', $);
+	console.log('btdatepicker', btdatepicker); 
     // Declare widget's prototype.
     return declare('BootstrapDatepicker.widget.BootstrapDatepicker', [ _WidgetBase, ], {
 
         // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
         _handle: [],
         _contextObj: null,
-		selector: null,
+		selector: null, 
 		enabled: true,
 		date1: null,
 		date2: null,
 
         constructor: function () {
 			dom.addCss('widgets/BootstrapDatepicker/widget/ui/bootstrap-datepicker3.css');
-			$.fn.datepicker.dates['nl'] = {
-				days: ["Zondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"],
-				daysShort: ["Zo", "Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"],
-				daysMin: ["Zo", "Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"],
-				months: ["Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli", "Augustus", "September", "Oktober", "November", "December"],
-				monthsShort: ["Jan", "Feb", "Mrt", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"],
-				today: "Vandaag",
-				clear: "Wissen",
-				weekStart: 1,
-				format: "dd-mm-yyyy"
-			};
+			this.loadTranslations();
         },
+
 
         postCreate: function () {
 			var id = this.id + "_cal";
@@ -84,7 +72,7 @@ require({
 					span.appendChild(dom.create('i', { 'class': 'glyphicon glyphicon-th' }));					
 					break;
 				case "embedded": 
-					this.selector = '#' + id + ' .div';
+					this.selector = '#' + id + ' div';
 					div.appendChild(dom.create('div', { 'class': 'embedded', 'data-date' : "12/03/2012" }));
 					break;
 				case "range": 
@@ -95,11 +83,8 @@ require({
 					rangediv.appendChild(dom.create('input', $.extend({ 'class': 'input-sm form-control', 'type': 'text', 'name': 'end', 'id' : 'endTime' }, ro)));
 					break;
 			}
-			var locale = this.getLocale();
-			logger.debug('btdatepicker', btdatepicker, locale);
-			logger.debug('$', $.fn.datepicker); 
 			$(this.selector).datepicker({
-				language: locale,
+				language: dojo.locale,
 				calendarWeeks: this.calendarweeks,
 				weekStart: this.weekstart,
 				todayBtn: this.todaybutton===true?"Linked":false,
@@ -112,13 +97,6 @@ require({
 				enableOnReadonly: false
 			}).on('changeDate', dojo.hitch(this, this.dateChanged));
         },
-		
-		getLocale: function() {
-			if (kernel) {
-				return kernel.locale;
-			} 
-			return mx.ui.getLocale();
-		},
 		
 		dateChanged: function (ev) {
 			logger.debug('datechanged', ev);
@@ -190,7 +168,8 @@ require({
 				$(this.selector).data('datepicker').updateDates();				
 			} else {
 				if (date1 != this.date1) {
-					$("#" + this.id).datepicker('update', new Date(date1));
+					console.log('selector', this.selector);
+					$(this.selector).datepicker('update', new Date(date1));
 					this.date1 = date1;
 				}
 			}
@@ -277,9 +256,10 @@ require({
                     attr: this.dateattr,
 					callback: lang.hitch(this,function(guid,attr,attrValue) {
 						logger.debug('update attr', new Date(attrValue), this.id, this.selector);
-						$("#" + this.id).datepicker('update', new Date(attrValue));
-						this.date1 = attrValue;
-						//this._updateRendering();
+						if (attrValue != this.date1) {
+							$(this.selector).datepicker('update', new Date(attrValue));
+							this.date1 = attrValue;
+						}
 					})
                 });
 				if (this.dateattrto) {
@@ -315,10 +295,85 @@ require({
 			
 				this._handles = [objHandle, attrHandle, validationHandle, attrHandle2, attrHandleTo];
             }
-        }		
+        },
+		loadTranslations: function () {
+			// copy paste content from the locale file you want to extend
+			$.fn.datepicker.dates.nl = {
+				days: ["Zondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"],
+				daysShort: ["Zo", "Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"],  
+				daysMin: ["Zo", "Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"],
+				months: ["Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli", "Augustus", "September", "Oktober", "November", "December"],
+				monthsShort: ["Jan", "Feb", "Mrt", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"],
+				today: "Vandaag",
+				clear: "Wissen",
+				weekStart: 1,
+				format: "dd-mm-yyyy"
+			};
+			$.fn.datepicker.dates.de = {
+				days: ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"],
+				daysShort: ["Son", "Mon", "Die", "Mit", "Don", "Fre", "Sam", "Son"],
+				daysMin: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
+				months: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+				monthsShort: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
+				today: "Heute",
+				clear: "Löschen",
+				weekStart: 1,
+				format: "dd.mm.yyyy"
+			};
+			$.fn.datepicker.dates['en-GB'] = {
+				days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+				daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+				daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+				months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+				monthsShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+				today: "Today",
+				clear: "Clear",
+				weekStart: 1,
+				format: "dd/mm/yyyy"
+			};
+			$.fn.datepicker.dates.gl = {
+				days: ["Domingo", "Luns", "Martes", "Mércores", "Xoves", "Venres", "Sábado", "Domingo"],
+				daysShort: ["Dom", "Lun", "Mar", "Mér", "Xov", "Ven", "Sáb", "Dom"],
+				daysMin: ["Do", "Lu", "Ma", "Me", "Xo", "Ve", "Sa", "Do"],
+				months: ["Xaneiro", "Febreiro", "Marzo", "Abril", "Maio", "Xuño", "Xullo", "Agosto", "Setembro", "Outubro", "Novembro", "Decembro"],
+				monthsShort: ["Xan", "Feb", "Mar", "Abr", "Mai", "Xun", "Xul", "Ago", "Sep", "Out", "Nov", "Dec"],
+				today: "Hoxe",
+				clear: "Limpar",
+				weekStart: 1,
+				format: "dd/mm/yyyy"
+			};	
+
+			$.fn.datepicker.dates.es = {
+				days: ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"],
+				daysShort: ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+				daysMin: ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"],
+				months: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+				monthsShort: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+				today: "Hoy",
+				clear: "Borrar",
+				weekStart: 1,
+				format: "dd/mm/yyyy"
+			};
+			$.fn.datepicker.dates['fr'] = {
+				days: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"],
+				daysShort: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
+				daysMin: ["D", "L", "Ma", "Me", "J", "V", "S", "D"],
+				months: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+				monthsShort: ["Jan", "Fév", "Mar", "Avr", "Mai", "Jui", "Jul", "Aou", "Sep", "Oct", "Nov", "Déc"],
+				today: "Aujourd'hui",
+				clear: "Effacer",
+				weekStart: 1,
+				format: "dd/mm/yyyy"
+			};			
+		}
 
  
     });
+});
+
+require(["BootstrapDatepicker/widget/BootstrapDatepicker"], function () {
+    "use strict";
+    return;
 });
 
 

@@ -4,16 +4,16 @@
  * Copyright 2012 Stefan Petre
  * Improvements by Andrew Rowls
  * Licensed under the Apache License v2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- */(function(factory){
+ */
+ (function(factory){
     if (typeof define === "function" && define.amd) {
-        define(["jquery"], factory);
+        define(['BootstrapDatepicker/lib/jquery'], factory);
     } else if (typeof exports === 'object') {
         factory(require('jquery'));
     } else {
         factory(jQuery);
     }
 }(function($, undefined){
-
 	function UTCDate(){
 		return new Date(Date.UTC.apply(Date, arguments));
 	}
@@ -1770,6 +1770,7 @@
 		'weekStart'
 	];
 	$.fn.datepicker.Constructor = Datepicker;
+	console.log('$ datepicker', $.fn.datepicker);//cdg
 	var dates = $.fn.datepicker.dates = {
 		en: {
 			days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
