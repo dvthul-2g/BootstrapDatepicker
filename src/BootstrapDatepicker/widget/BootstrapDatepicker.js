@@ -295,7 +295,7 @@ define([
 						attr: this.dateattrend,
 						callback: lang.hitch(this,function(guid,attr,attrValue) {
 							$(this.selector).datepicker('setEndDate', attrValue?new Date(attrValue):false);
-							console.log('update end date', attr, attrValue);
+							logger.debug('update end date', attr, attrValue);
 						})
 					});
 				}				
