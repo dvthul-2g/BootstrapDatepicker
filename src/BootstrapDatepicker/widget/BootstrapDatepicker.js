@@ -29,8 +29,6 @@ define([
 ], function (declare, _WidgetBase, dom, domConstruct, lang, text, kernel, domClass, _jquery, btdatepicker) {
     'use strict';
     var $ = _jquery.noConflict(true);
-	console.log('$', $);
-	console.log('btdatepicker', btdatepicker); 
     // Declare widget's prototype.
     return declare('BootstrapDatepicker.widget.BootstrapDatepicker', [ _WidgetBase, ], {
 
@@ -72,8 +70,7 @@ define([
 					span.appendChild(dom.create('i', { 'class': 'glyphicon glyphicon-th' }));					
 					break;
 				case "embedded": 
-					this.selector = '#' + id + ' div';
-					div.appendChild(dom.create('div', { 'class': 'embedded', 'data-date' : "12/03/2012" }));
+					this.selector = '#' + id + '';
 					break;
 				case "range": 
 					this.selector = '#' + id + ' .input-daterange';
@@ -83,6 +80,7 @@ define([
 					rangediv.appendChild(dom.create('input', $.extend({ 'class': 'input-sm form-control', 'type': 'text', 'name': 'end', 'id' : 'endTime' }, ro)));
 					break;
 			}
+
 			$(this.selector).datepicker({
 				language: dojo.locale,
 				calendarWeeks: this.calendarweeks,
@@ -136,8 +134,8 @@ define([
 			if (this._contextObj != obj) {
 				this._contextObj = obj;
 				this.resetSubscriptions();
+				this._updateRendering(obj);
 			}
-			this._updateRendering(obj);
 			
             if (callback) {
 				callback();
@@ -172,6 +170,12 @@ define([
 					$(this.selector).datepicker('update', new Date(date1));
 					this.date1 = date1;
 				}
+			}
+			if (this.dateattrstart && obj && obj.get(this.dateattrstart)) {
+				$(this.selector).datepicker('setStartDate', new Date(obj.get(this.dateattrstart)));
+			}
+			if (this.dateattrend && obj && obj.get(this.dateattrend)) {
+				$(this.selector).datepicker('setEndDate', new Date(obj.get(this.dateattrend)));
 			}
 			this._clearValidations();
         },
@@ -234,7 +238,9 @@ define([
 				attrHandle = null, 
 				attrHandleTo = null,
 				validationHandle = null,
-				attrHandle2 = null;
+				attrHandle2 = null,
+				attrHandleStart = null,
+				attrHandleEnd = null;
 			
 			// Release handles on previous object, if any.
 			if(this._handles){
@@ -250,7 +256,7 @@ define([
 						this._updateRendering();
 					})
 				});
-				
+				// 
                 attrHandle = this.subscribe({
                     guid: this._contextObj.getGuid(),
                     attr: this.dateattr,
@@ -273,6 +279,27 @@ define([
 						})
 					});
 				}
+				if (this.dateattrstart) {
+					attrHandleStart = this.subscribe({
+						guid: this._contextObj.getGuid(),
+						attr: this.dateattrstart,
+						callback: lang.hitch(this,function(guid,attr,attrValue) {
+							$(this.selector).datepicker('setStartDate', attrValue?new Date(attrValue):false);
+							logger.debug('update start date ', attr, attrValue);
+						})
+					});
+				}
+				if (this.dateattrend) {
+					attrHandleEnd = this.subscribe({
+						guid: this._contextObj.getGuid(),
+						attr: this.dateattrend,
+						callback: lang.hitch(this,function(guid,attr,attrValue) {
+							$(this.selector).datepicker('setEndDate', attrValue?new Date(attrValue):false);
+							console.log('update end date', attr, attrValue);
+						})
+					});
+				}				
+				
 				if (this.editableattr) {
 					attrHandle2 = this.subscribe({
 						guid: this._contextObj.getGuid(),
@@ -293,7 +320,7 @@ define([
 					callback : lang.hitch(this,this._handleValidation)
 				});
 			
-				this._handles = [objHandle, attrHandle, validationHandle, attrHandle2, attrHandleTo];
+				this._handles = [objHandle, attrHandle, validationHandle, attrHandle2, attrHandleTo, attrHandleStart, attrHandleEnd];
             }
         },
 		loadTranslations: function () {
@@ -354,7 +381,7 @@ define([
 				weekStart: 1,
 				format: "dd/mm/yyyy"
 			};
-			$.fn.datepicker.dates['fr'] = {
+			$.fn.datepicker.dates.fr = {
 				days: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"],
 				daysShort: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
 				daysMin: ["D", "L", "Ma", "Me", "J", "V", "S", "D"],

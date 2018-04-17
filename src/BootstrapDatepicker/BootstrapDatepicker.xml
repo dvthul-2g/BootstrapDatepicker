@@ -46,6 +46,22 @@
         <attributeType name="DateTime"/>
       </attributeTypes>
     </property>
+    <property key="dateattrstart" type="attribute" required="false">
+      <caption>Minimal date attribute</caption>
+      <category>Data source</category>
+      <description>Attribute containing the lowest selectable date</description>
+      <attributeTypes>
+        <attributeType name="DateTime"/>
+      </attributeTypes>
+    </property>	
+    <property key="dateattrend" type="attribute" required="false">
+      <caption>Maximal date attribute</caption>
+      <category>Data source</category>
+      <description>Attribute containing the highest selectable date</description>
+      <attributeTypes>
+        <attributeType name="DateTime"/>
+      </attributeTypes>
+    </property>	
     <property key="editableattr" type="attribute" required="false">
       <caption>Editable attribute</caption>
       <category>Data source</category>
