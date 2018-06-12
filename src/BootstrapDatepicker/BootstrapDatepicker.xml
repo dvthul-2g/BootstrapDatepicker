@@ -20,6 +20,11 @@
       <category>Display</category>
       <description>Weeks starts at 0=Sunday, 1=Monday etc</description>
     </property>
+    <property defaultValue="0" key="startview" type="integer">
+      <caption>Startview</caption>
+      <category>Display</category>
+      <description>0/days, 1/Months, 2/Years, 3/Decades, 4/Centuries </description>
+    </property>	
     <property defaultValue="false" key="todaybutton" type="boolean">
       <caption>Today button</caption>
       <category>Display</category>
@@ -70,6 +75,11 @@
         <attributeType name="Boolean"/>
       </attributeTypes>
     </property>	
+    <property key="listentochanges" defaultValue="true" type="boolean">
+      <caption>Listen to changes</caption>
+      <category>Data source</category>
+      <description>Datepicker will reflect date changes in microflows and other attributes.</description>
+    </property>	
     <property key="todayhighlight" defaultValue="false"  type="boolean">
       <caption>Highlight today</caption>
       <category>Display</category>
@@ -80,6 +90,11 @@
       <category>Display</category>
       <description>Show calender weeks</description>
     </property>	
+    <property key="displayFormat" defaultValue="" type="translatableString" required="false">  
+      <caption>Date format</caption>
+      <category>Display</category>
+      <description>The date format, combination of d, dd, D, DD, m, mm, M, MM, yy, yyyy.</description>
+    </property>		
     <property defaultValue="false" key="autoclose" type="boolean">
       <caption>Auto close</caption>
       <category>General</category>
@@ -96,6 +111,11 @@
       <description>Onchange microflow</description>
       <returnType type="Void"/>
     </property>
+    <property defaultValue="false" key="preventDoublerunning" type="boolean">
+      <caption>Disallow concurrent</caption>
+      <category>Events</category>
+      <description>Skip onChange when previous microflow call is not finished.</description>
+    </property>	
     <property defaultValue="" key="daysofweekdisabled" required="false" type="string">
       <caption>Disabled days</caption>
       <category>Display</category>

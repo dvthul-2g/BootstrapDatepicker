@@ -39,6 +39,10 @@ define([
 		enabled: true,
 		date1: null,
 		date2: null,
+		rangestart: null,
+		rangeend: null,
+		preventDoublerunning: false,
+		mfRunning: false,
 
         constructor: function () {
 			dom.addCss('widgets/BootstrapDatepicker/widget/ui/bootstrap-datepicker3.css');
@@ -80,10 +84,10 @@ define([
 					rangediv.appendChild(dom.create('input', $.extend({ 'class': 'input-sm form-control', 'type': 'text', 'name': 'end', 'id' : 'endTime' }, ro)));
 					break;
 			}
-
+			var dateFormat = this.getDateFormat();
 			$(this.selector).datepicker({
 				language: dojo.locale,
-				calendarWeeks: this.calendarweeks,
+				calendarWeeks: this.calendarweeks, 
 				weekStart: this.weekstart,
 				todayBtn: this.todaybutton===true?"Linked":false,
 				clearBtn: this.clearbutton,
@@ -92,40 +96,92 @@ define([
 				todayHighlight: this.todayhighlight,
 				startDate: this.limitstart,
 				endDate: this.limitend,
-				enableOnReadonly: false
+				enableOnReadonly: false,
+				startView: this.startview,
+				format: dateFormat
 			}).on('changeDate', dojo.hitch(this, this.dateChanged));
         },
+		getDateFormat: function () {
+			var dateFormat = "";
+			if ($.fn.datepicker.dates[dojo.locale.split("-")[0]]) {
+				dateFormat = $.fn.datepicker.dates[dojo.locale.split("-")[0]].format;
+			} else if ($.fn.datepicker.dates[dojo.locale]) {
+				dateFormat = $.fn.datepicker.dates[dojo.locale].format;
+			} else {
+				dateFormat = "dd/mm/yyyy";  
+			}
+				
+			if (this.displayFormat) {
+				dateFormat = this.displayFormat;
+			}
+			return dateFormat;
+		},
 		
 		dateChanged: function (ev) {
 			logger.debug('datechanged', ev);
-			var d = new Date(ev.date);
-			if (this._contextObj && ev.type=="changeDate" && ev.date && (!isNaN(d.getTime())) && (d.getYear()>0)) {
-				ev.date.setHours(this.defaulthours);
-				// second field for range?
-				if(ev.target.attributes.name && ev.target.attributes.name.value=="end" && this.dateattrto) {
-					this._contextObj.set(this.dateattrto, ev.date);
-				} else {
-					logger.debug('set date', ev.date);
-					this._contextObj.set(this.dateattr, ev.date);
+			if (ev.date) {
+				var d = new Date(ev.date); 
+				//if (!this.dateWithoutTimeSame(newdate1, this.date1))
+				//console.log('date1', this.date1);
+				//console.log('ev', ev.date);
+				// don't proces the changedate from the update routine as change.
+				if (this.date1 === null || ev.date === null || this.date1.getTime() != ev.date.getTime()) {				
+					if (this._contextObj && ev.type=="changeDate" && ev.date && (!isNaN(d.getTime())) && (d.getYear()>0)) {
+						ev.date.setHours(this.defaulthours);
+						// second field for range?
+						if(ev.target.attributes.name && ev.target.attributes.name.value=="end" && this.dateattrto) {
+							this.date2 = ev.date;
+							this._contextObj.set(this.dateattrto, ev.date);
+						} else {
+							logger.debug('set date', ev.date);
+							this.date1 = ev.date;
+							this._contextObj.set(this.dateattr, ev.date);
+						}
+						this.callmf();
+					}
 				}
-				this.callmf();
 			}
 		},
 		
 		callmf: function () {
 			if (this.mfToExecute) {
-				mx.data.action({
-					params: {
-						applyto: 'selection',
-						actionname: this.mfToExecute,
-						guids: [this._contextObj.getGuid()]
-					},
-					callback: function (obj) {
-					},
-					error: function (error) {
-						logger.debug(this.id + ': An error occurred while executing microflow: ' + error.description);
+				if (this.preventDoublerunning) {
+					if (this.mfRunning === false) {
+						this.mfRunning = true;
+						var pid = mx.ui.showProgress("", true);
+						mx.data.action({
+							params: {
+								applyto: 'selection',
+								actionname: this.mfToExecute,
+								guids: [this._contextObj.getGuid()]
+							},
+							callback: dojo.hitch(this, function (obj) {
+								this.mfRunning = false;
+								mx.ui.hideProgress(pid);
+							}),
+							error: dojo.hitch(this, function (error) {
+								this.mfRunning = false;
+								mx.ui.hideProgress(pid);
+								logger.debug(this.id + ': An error occurred while executing microflow: ' + error.description);
+							})
+						}, this);		
+					} else {
+						logger.debug('skip onChange microflow because that is still running');
 					}
-				}, this);		
+				} else {
+					mx.data.action({
+						params: {
+							applyto: 'selection',
+							actionname: this.mfToExecute,
+							guids: [this._contextObj.getGuid()]
+						},
+						callback: dojo.hitch(this, function (obj) {
+						}),
+						error: dojo.hitch(this, function (error) {
+							logger.debug(this.id + ': An error occurred while executing microflow: ' + error.description);
+						})
+					}, this);		
+				}
 			}
 		},
 		
@@ -134,7 +190,7 @@ define([
 			if (this._contextObj != obj) {
 				this._contextObj = obj;
 				this.resetSubscriptions();
-				this._updateRendering(obj);
+				this._updateRendering();
 			}
 			
             if (callback) {
@@ -144,44 +200,42 @@ define([
 
         _updateRendering: function () {
             var obj = this._contextObj;
-			var date1 = obj.get(this.dateattr);
-			var enabled = true;
-			if (this.editableattr) {
-				enabled = obj.get(this.editableattr); 
-			}
-			if (enabled) {
-				this.enable();
-			} else {
-				this.disable();
-			}
-			if (this.displaytype=="range" && this.dateattrto) {
-				// undocumented feature to set start end: https://groups.google.com/forum/#!msg/bootstrap-datepicker/9q5n35QCpgg/sznmzU7-yaYJ
-				if (date1) {
-					$(this.selector).find('#startTime').datepicker('update', new Date(date1)); 
+			// listen first item
+			if (this.date1 === null || this.listentochanges) {
+				var date1 = new Date(obj.get(this.dateattr));
+				var enabled = true;
+				if (this.editableattr) {
+					enabled = obj.get(this.editableattr); 
 				}
-				var date2 = obj.get(this.dateattrto);
-				if (date2) {
-					$(this.selector).find('#endTime').datepicker('update', new Date(obj.get(this.dateattrto))); 
+				if (enabled) {
+					this.enable();
+				} else {
+					this.disable();
 				}
-				$(this.selector).data('datepicker').updateDates();				
-			} else {
-				if (date1 != this.date1) {
-					console.log('selector', this.selector);
-					$(this.selector).datepicker('update', new Date(date1));
-					this.date1 = date1;
+				if (this.displaytype=="range" && this.dateattrto) {
+					var date2 = new Date(obj.get(this.dateattrto));
+					$(this.selector).datepicker('setDates', [date1, date2]); 
+				} else {
+					if (date1 != this.date1) {
+						logger.debug('selector', this.selector);
+						this.date1 = date1;
+						$(this.selector).datepicker('setDate', date1);
+					}
 				}
 			}
-			if (this.dateattrstart && obj && obj.get(this.dateattrstart)) {
+			if (this.dateattrstart && obj && obj.get(this.dateattrstart) && obj.get(this.dateattrstart) != this.rangestart) {
+				this.rangestart = obj.get(this.dateattrstart);
 				$(this.selector).datepicker('setStartDate', new Date(obj.get(this.dateattrstart)));
 			}
-			if (this.dateattrend && obj && obj.get(this.dateattrend)) {
+			if (this.dateattrend && obj && obj.get(this.dateattrend) && obj.get(this.dateattrend) != this.rangeend) {
+				this.rangeend = obj.get(this.dateattrend);
 				$(this.selector).datepicker('setEndDate', new Date(obj.get(this.dateattrend)));
 			}
-			this._clearValidations();
+			this._clearValidations(); 
         },
 
         enable: function () {
-			if (!this.readonly) {
+			if (!this.readonly) { 
 				this.enabled = true;
 				$(this.selector).removeAttr("readonly");
 				$(this.selector).add("readonly");
@@ -256,15 +310,20 @@ define([
 						this._updateRendering();
 					})
 				});
-				// 
                 attrHandle = this.subscribe({
                     guid: this._contextObj.getGuid(),
                     attr: this.dateattr,
 					callback: lang.hitch(this,function(guid,attr,attrValue) {
 						logger.debug('update attr', new Date(attrValue), this.id, this.selector);
-						if (attrValue != this.date1) {
-							$(this.selector).datepicker('update', new Date(attrValue));
-							this.date1 = attrValue;
+						var newdate1 = new Date(attrValue);
+						if (!this.dateWithoutTimeSame(newdate1, this.date1)) {
+							//console.debug('selector 2', this.selector, newdate1);
+							if (this.date2) {
+								$(this.selector).datepicker('setDates', [newdate1, this.date2]);
+							} else {
+								$(this.selector).datepicker('setDate', newdate1);
+							}
+							this.date1 = newdate1;
 						}
 					})
                 });
@@ -273,9 +332,12 @@ define([
 						guid: this._contextObj.getGuid(),
 						attr: this.dateattrto,
 						callback: lang.hitch(this,function(guid,attr,attrValue) {
-							$(this.selector).find('#endTime').datepicker('update', new Date(attrValue)); 
+							//$(this.selector).find('#endTime').datepicker('update', new Date(attrValue)); 
+							this.date2 = new Date(attrValue);
+							$(this.selector).datepicker('setDate', [this.date1, this.date2]); 
+							
 							logger.debug('update attr', attr, attrValue);
-							this._updateRendering();
+							//this._updateRendering();
 						})
 					});
 				}
@@ -323,6 +385,13 @@ define([
 				this._handles = [objHandle, attrHandle, validationHandle, attrHandle2, attrHandleTo, attrHandleStart, attrHandleEnd];
             }
         },
+		dateWithoutTimeSame : function(date1, date2) {
+			var d1 = new Date(date1);
+			var d2 = new Date(date1);
+			d1.setHours(0, 0, 0, 0);
+			d2.setHours(0, 0, 0, 0);
+			return d1 === d2;
+		},
 		loadTranslations: function () {
 			// copy paste content from the locale file you want to extend
 			$.fn.datepicker.dates.nl = {
