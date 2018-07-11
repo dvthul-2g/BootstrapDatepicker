@@ -75,7 +75,25 @@
         <attributeType name="Boolean"/>
       </attributeTypes>
     </property>	
-    <property key="listentochanges" defaultValue="true" type="boolean">
+	<property key="validdateentity" type="entity" isPath="yes" pathType="referenceSet" required="false">
+		<caption>Valid dates</caption>
+		<category>Valid dates</category>
+		<description>Reference set to valid dates</description>
+	</property>	
+	<property key="validdateattr" type="attribute" entityProperty="validdateentity" required="false">
+		<caption>Valid Date attr</caption>
+		<category>Valid dates</category>
+		<description>DateTime attribute containing start date/time (required)</description>
+		<attributeTypes>
+			<attributeType name="DateTime"/>
+		</attributeTypes>
+	</property>	
+    <property key="validdateclass" defaultValue="datepickervaliddate" type="string" required="false">  
+      <caption>Class to add</caption>
+      <category>Valid dates</category>
+      <description>Classname that will be added to dates in the valid date assocation</description>
+    </property>		
+	<property key="listentochanges" defaultValue="true" type="boolean">
       <caption>Listen to changes</caption>
       <category>Data source</category>
       <description>Datepicker will reflect date changes in microflows and other attributes.</description>

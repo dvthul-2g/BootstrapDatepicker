@@ -43,6 +43,7 @@ define([
 		rangeend: null,
 		preventDoublerunning: false,
 		mfRunning: false,
+		validDates: [],
 
         constructor: function () {
 			dom.addCss('widgets/BootstrapDatepicker/widget/ui/bootstrap-datepicker3.css');
@@ -98,7 +99,8 @@ define([
 				endDate: this.limitend,
 				enableOnReadonly: false,
 				startView: this.startview,
-				format: dateFormat
+				format: dateFormat,
+				beforeShowDay: dojo.hitch(this, this.beforeShowDay)
 			}).on('changeDate', dojo.hitch(this, this.dateChanged));
         },
 		getDateFormat: function () {
@@ -231,10 +233,54 @@ define([
 				this.rangeend = obj.get(this.dateattrend);
 				$(this.selector).datepicker('setEndDate', new Date(obj.get(this.dateattrend)));
 			}
+			this._getValidDates();
 			this._clearValidations(); 
         },
-
+        _getValidDates: function() {
+            logger.debug(this.id + '._getResourcesFromXPath');
+			// retrieve only resources connected to scheduleditems.
+			// get resource from Schedule_ScheduledItem/ScheduledItem
+			if (this.validdateentity) {
+				var validDateEntityName = this.validdateentity.split('/')[1];
+				var dateReference = this.validdateentity.split('/')[0];
+						
+				if (this._contextObj) {
+					var xpath = "//" + validDateEntityName  + "[" + dateReference + "='" + this._contextObj.getGuid() + "']";
+					mx.data.get({
+						xpath: xpath,
+						filter: this.resfilter,
+						callback: dojo.hitch(this, this._receivedDates)
+					});
+				} else {
+					logger.warn(this.id + "._getValidDates -- Warning: No context object available.");
+				}
+			}
+        },
+		_receivedDates: function(objs) {
+			var i;
+            logger.debug(objs.length + ' Valid dates received!');	
+			this.validDates = [];
+			for (i = 0; i < objs.length; i++) {
+				this.validDates.push(new Date (objs[i].get(this.validdateattr)));	
+			}
+			$(this.selector).datepicker("update");
+		},
+		beforeShowDay: function(d) {
+			var i;
+			if (this.validDates) {
+				//console.log('before show ' + d);
+				for (i = 0; i < this.validDates.length; i++) {
+					if (this.dateWithoutTimeSame(this.validDates[i], d)) {
+						//console.log('date found', d);
+						return {
+							classes: this.validdateclass 
+						};
+					}
+				}
+			}
+		},
         enable: function () {
+			console.log('enable ' + this.id);
 			if (!this.readonly) { 
 				this.enabled = true;
 				$(this.selector).removeAttr("readonly");
@@ -244,10 +290,19 @@ define([
         },
 
         disable: function () {
+			console.log('disable ' + this.id);
 			this.enabled = false;
 			$(this.selector).attr("readonly", "true");
 			domClass.add(this.domNode, "btdatepicker-disabled");
         },
+		
+		_setDisabledAttr: function(value) {
+			if (value) {
+				this.disable();
+			} else { 
+				this.enable();
+			}			
+		},
 
         uninitialize: function () {
 			if(this._handles){
@@ -387,10 +442,10 @@ define([
         },
 		dateWithoutTimeSame : function(date1, date2) {
 			var d1 = new Date(date1);
-			var d2 = new Date(date1);
+			var d2 = new Date(date2);
 			d1.setHours(0, 0, 0, 0);
 			d2.setHours(0, 0, 0, 0);
-			return d1 === d2;
+			return d1.getTime() === d2.getTime();
 		},
 		loadTranslations: function () {
 			// copy paste content from the locale file you want to extend
