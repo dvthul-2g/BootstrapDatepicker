@@ -159,5 +159,10 @@
       <category>Display</category>
       <description>Date is readonly</description>
     </property>	
+    <property key="inputplaceholder" required="false" type="string">
+      <caption>Input placeholder</caption>
+      <category>Display</category>
+      <description>Input field placeholder text</description>
+    </property>	
   </properties>
 </widget>

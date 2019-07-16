@@ -53,7 +53,7 @@ define([
 
         postCreate: function () {
 			var id = this.id + "_cal";
-            var div = dom.create('div' , { 'id' : id } );
+            var div = dom.create('div' , { 'id' : id, 'class' : 'bootstrap-datepicker' } );
 			this.domNode.appendChild(div);
 			this.selector = '#' + id + ' input';
 			if (this.displaytype==="range" && (this.dateattrto===null || this.dateattrto===undefined || this.dateattr===this.dateattrto)) {
@@ -64,12 +64,12 @@ define([
 			switch (this.displaytype) { 
 				case "textinput": 
 					this.selector = '#' + id + ' input';
-					div.appendChild(dom.create('input', $.extend({ 'class': 'form-control', 'type': 'text'}, ro)));
+					div.appendChild(dom.create('input', $.extend({ 'class': 'form-control', 'type': 'text', 'placeholder': this.inputplaceholder}, ro)));
 					break;
 				case "component": 
 					this.selector = '#' + id + ' .input-group.date';
 					var groupdiv = div.appendChild(dom.create('div', { 'class': 'input-group date' }));
-					groupdiv.appendChild(dom.create('input', $.extend({ 'class': 'form-control', 'type': 'text'}, ro)));
+					groupdiv.appendChild(dom.create('input', $.extend({ 'class': 'form-control', 'type': 'text', 'placeholder': this.inputplaceholder}, ro)));
 					var span = dom.create('span', { 'class': 'input-group-addon' });
 					groupdiv.appendChild(span);
 					span.appendChild(dom.create('i', { 'class': 'glyphicon glyphicon-th' }));					
@@ -80,9 +80,9 @@ define([
 				case "range": 
 					this.selector = '#' + id + ' .input-daterange';
 					var rangediv = div.appendChild(dom.create('div', { 'class': 'input-daterange input-group', 'id' : 'datepicker' }));
-					rangediv.appendChild(dom.create('input', $.extend({ 'class': 'input-sm form-control', 'type': 'text', 'name': 'start', 'id': 'startTime' }, ro)));
+					rangediv.appendChild(dom.create('input', $.extend({ 'class': 'input-sm form-control', 'type': 'text', 'name': 'start', 'id': 'startTime', 'placeholder': this.inputplaceholder }, ro)));
 					rangediv.appendChild(dom.create('span', { 'class': 'input-group-addon' }, this.totext||"To"));
-					rangediv.appendChild(dom.create('input', $.extend({ 'class': 'input-sm form-control', 'type': 'text', 'name': 'end', 'id' : 'endTime' }, ro)));
+					rangediv.appendChild(dom.create('input', $.extend({ 'class': 'input-sm form-control', 'type': 'text', 'name': 'end', 'id' : 'endTime', 'placeholder': this.inputplaceholder }, ro)));
 					break;
 			}
 			var dateFormat = this.getDateFormat();
