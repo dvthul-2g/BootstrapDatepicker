@@ -15,27 +15,27 @@
 */
 // Required module list. Remove unnecessary modules, you can always get them back from the boilerplate.
 define([
-    'dojo/_base/declare',  
-	'mxui/widget/_WidgetBase',  
-    'mxui/dom', 
+	'dojo/_base/declare',
+	'mxui/widget/_WidgetBase',
+	'mxui/dom',
 	'dojo/dom-construct',
-	'dojo/_base/lang', 
-	'dojo/text', 
-	'dojo/_base/kernel', 
+	'dojo/_base/lang',
+	'dojo/text',
+	'dojo/_base/kernel',
 	'dojo/dom-class',
-    'BootstrapDatepicker/lib/jquery',  
+	'BootstrapDatepicker/lib/jquery',
 	'BootstrapDatepicker/lib/bootstrap-datepicker'
-	 
-], function (declare, _WidgetBase, dom, domConstruct, lang, text, kernel, domClass, _jquery, btdatepicker) {
-    'use strict';
-    var $ = _jquery.noConflict(true);
-    // Declare widget's prototype.
-    return declare('BootstrapDatepicker.widget.BootstrapDatepicker', [ _WidgetBase, ], {
 
-        // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
-        _handle: [],
-        _contextObj: null,
-		selector: null, 
+], function (declare, _WidgetBase, dom, domConstruct, lang, text, kernel, domClass, _jquery, btdatepicker) {
+	'use strict';
+	var $ = _jquery.noConflict(true);
+	// Declare widget's prototype.
+	return declare('BootstrapDatepicker.widget.BootstrapDatepicker', [_WidgetBase, ], {
+
+		// Internal variables. Non-primitives created in the prototype are shared between all widget instances.
+		_handle: [],
+		_contextObj: null,
+		selector: null,
 		enabled: true,
 		date1: null,
 		date2: null,
@@ -45,52 +45,88 @@ define([
 		mfRunning: false,
 		validDates: [],
 
-        constructor: function () {
+		constructor: function () {
 			dom.addCss('widgets/BootstrapDatepicker/widget/ui/bootstrap-datepicker3.css');
 			this.loadTranslations();
-        },
+		},
 
 
-        postCreate: function () {
+		postCreate: function () {
 			var id = this.id + "_cal";
-            var div = dom.create('div' , { 'id' : id, 'class' : 'bootstrap-datepicker' } );
+			var div = dom.create('div', {
+				'id': id,
+				'class': 'bootstrap-datepicker'
+			});
 			this.domNode.appendChild(div);
 			this.selector = '#' + id + ' input';
-			if (this.displaytype==="range" && (this.dateattrto===null || this.dateattrto===undefined || this.dateattr===this.dateattrto)) {
+			if (this.displaytype === "range" && (this.dateattrto === null || this.dateattrto === undefined || this.dateattr === this.dateattrto)) {
 				this.displaytype = "textinput";
 				logger.debug("range without second date attribute provided: fallback to text input");
 			}
-			var ro = this.readonly?{ readonly : 'true'}:{};
-			switch (this.displaytype) { 
-				case "textinput": 
+			var ro = this.readonly ? {
+				readonly: 'true'
+			} : {};
+			switch (this.displaytype) {
+				case "textinput":
 					this.selector = '#' + id + ' input';
-					div.appendChild(dom.create('input', $.extend({ 'class': 'form-control', 'type': 'text', 'placeholder': this.inputplaceholder}, ro)));
+					div.appendChild(dom.create('input', $.extend({
+						'class': 'form-control',
+						'type': 'text',
+						'placeholder': this.inputplaceholder
+					}, ro)));
 					break;
-				case "component": 
+				case "component":
 					this.selector = '#' + id + ' .input-group.date';
-					var groupdiv = div.appendChild(dom.create('div', { 'class': 'input-group date' }));
-					groupdiv.appendChild(dom.create('input', $.extend({ 'class': 'form-control', 'type': 'text', 'placeholder': this.inputplaceholder}, ro)));
-					var span = dom.create('span', { 'class': 'input-group-addon' });
+					var groupdiv = div.appendChild(dom.create('div', {
+						'class': 'input-group date'
+					}));
+					groupdiv.appendChild(dom.create('input', $.extend({
+						'class': 'form-control',
+						'type': 'text',
+						'placeholder': this.inputplaceholder
+					}, ro)));
+					var span = dom.create('span', {
+						'class': 'input-group-addon'
+					});
 					groupdiv.appendChild(span);
-					span.appendChild(dom.create('i', { 'class': 'glyphicon glyphicon-th' }));					
+					span.appendChild(dom.create('i', {
+						'class': 'glyphicon glyphicon-th'
+					}));
 					break;
-				case "embedded": 
+				case "embedded":
 					this.selector = '#' + id + '';
 					break;
-				case "range": 
+				case "range":
 					this.selector = '#' + id + ' .input-daterange';
-					var rangediv = div.appendChild(dom.create('div', { 'class': 'input-daterange input-group', 'id' : 'datepicker' }));
-					rangediv.appendChild(dom.create('input', $.extend({ 'class': 'input-sm form-control', 'type': 'text', 'name': 'start', 'id': 'startTime', 'placeholder': this.inputplaceholder }, ro)));
-					rangediv.appendChild(dom.create('span', { 'class': 'input-group-addon' }, this.totext||"To"));
-					rangediv.appendChild(dom.create('input', $.extend({ 'class': 'input-sm form-control', 'type': 'text', 'name': 'end', 'id' : 'endTime', 'placeholder': this.inputplaceholder }, ro)));
+					var rangediv = div.appendChild(dom.create('div', {
+						'class': 'input-daterange input-group',
+						'id': 'datepicker'
+					}));
+					rangediv.appendChild(dom.create('input', $.extend({
+						'class': 'input-sm form-control',
+						'type': 'text',
+						'name': 'start',
+						'id': 'startTime',
+						'placeholder': this.inputplaceholder
+					}, ro)));
+					rangediv.appendChild(dom.create('span', {
+						'class': 'input-group-addon'
+					}, this.totext || "To"));
+					rangediv.appendChild(dom.create('input', $.extend({
+						'class': 'input-sm form-control',
+						'type': 'text',
+						'name': 'end',
+						'id': 'endTime',
+						'placeholder': this.inputplaceholder
+					}, ro)));
 					break;
 			}
 			var dateFormat = this.getDateFormat();
 			$(this.selector).datepicker({
 				language: dojo.locale,
-				calendarWeeks: this.calendarweeks, 
+				calendarWeeks: this.calendarweeks,
 				weekStart: this.weekstart,
-				todayBtn: this.todaybutton===true?"Linked":false,
+				todayBtn: this.todaybutton === true ? "Linked" : false,
 				clearBtn: this.clearbutton,
 				autoclose: this.autoclose,
 				daysOfWeekDisabled: this.daysofweekdisabled,
@@ -102,7 +138,7 @@ define([
 				format: dateFormat,
 				beforeShowDay: dojo.hitch(this, this.beforeShowDay)
 			}).on('changeDate', dojo.hitch(this, this.dateChanged));
-        },
+		},
 		getDateFormat: function () {
 			var dateFormat = "";
 			if ($.fn.datepicker.dates[dojo.locale.split("-")[0]]) {
@@ -110,28 +146,28 @@ define([
 			} else if ($.fn.datepicker.dates[dojo.locale]) {
 				dateFormat = $.fn.datepicker.dates[dojo.locale].format;
 			} else {
-				dateFormat = "dd/mm/yyyy";  
+				dateFormat = "dd/mm/yyyy";
 			}
-				
+
 			if (this.displayFormat) {
 				dateFormat = this.displayFormat;
 			}
 			return dateFormat;
 		},
-		
+
 		dateChanged: function (ev) {
 			logger.debug('datechanged', ev);
 			if (ev.date) {
-				var d = new Date(ev.date); 
+				var d = new Date(ev.date);
 				//if (!this.dateWithoutTimeSame(newdate1, this.date1))
 				//console.log('date1', this.date1);
 				//console.log('ev', ev.date);
 				// don't proces the changedate from the update routine as change.
-				if (this.date1 === null || ev.date === null || this.date1.getTime() != ev.date.getTime()) {				
-					if (this._contextObj && ev.type=="changeDate" && ev.date && (!isNaN(d.getTime())) && (d.getYear()>0)) {
+				if (this.date1 === null || ev.date === null || this.date1.getTime() != ev.date.getTime()) {
+					if (this._contextObj && ev.type == "changeDate" && ev.date && (!isNaN(d.getTime())) && (d.getYear() > 0)) {
 						ev.date.setHours(this.defaulthours);
 						// second field for range?
-						if(ev.target.attributes.name && ev.target.attributes.name.value=="end" && this.dateattrto) {
+						if (ev.target.attributes.name && ev.target.attributes.name.value == "end" && this.dateattrto) {
 							this.date2 = ev.date;
 							this._contextObj.set(this.dateattrto, ev.date);
 						} else {
@@ -140,11 +176,12 @@ define([
 							this._contextObj.set(this.dateattr, ev.date);
 						}
 						this.callmf();
+						this.callnf(this.nfToExecute);
 					}
 				}
 			}
 		},
-		
+
 		callmf: function () {
 			if (this.mfToExecute) {
 				if (this.preventDoublerunning) {
@@ -166,7 +203,7 @@ define([
 								mx.ui.hideProgress(pid);
 								logger.debug(this.id + ': An error occurred while executing microflow: ' + error.description);
 							})
-						}, this);		
+						}, this);
 					} else {
 						logger.debug('skip onChange microflow because that is still running');
 					}
@@ -177,16 +214,32 @@ define([
 							actionname: this.mfToExecute,
 							guids: [this._contextObj.getGuid()]
 						},
-						callback: dojo.hitch(this, function (obj) {
-						}),
+						callback: dojo.hitch(this, function (obj) {}),
 						error: dojo.hitch(this, function (error) {
 							logger.debug(this.id + ': An error occurred while executing microflow: ' + error.description);
 						})
-					}, this);		
+					}, this);
 				}
 			}
 		},
-		
+		callnf: function (nanoflow) {
+			logger.debug(this.id + " callnf");
+			if (nanoflow.nanoflow && this._contextObj) {
+				mx.data.callNanoflow({
+					nanoflow: nanoflow,
+					origin: this.mxform,
+					context: this.mxcontext,
+					error: function(error) {
+						mx.ui.error(
+							"An error occurred while executing the Nanoflow: " +
+								error.message
+						);
+						console.error(error.message);
+					}
+				});
+			}
+		},
+
 		update: function (obj, callback) {
 			logger.debug('update');
 			if (this._contextObj != obj) {
@@ -194,29 +247,29 @@ define([
 				this.resetSubscriptions();
 				this._updateRendering();
 			}
-			
-            if (callback) {
+
+			if (callback) {
 				callback();
 			}
-        },
+		},
 
-        _updateRendering: function () {
-            var obj = this._contextObj;
+		_updateRendering: function () {
+			var obj = this._contextObj;
 			// listen first item
 			if (this.date1 === null || this.listentochanges) {
 				var date1 = new Date(obj.get(this.dateattr));
 				var enabled = true;
 				if (this.editableattr) {
-					enabled = obj.get(this.editableattr); 
+					enabled = obj.get(this.editableattr);
 				}
 				if (enabled) {
 					this.enable();
 				} else {
 					this.disable();
 				}
-				if (this.displaytype=="range" && this.dateattrto) {
+				if (this.displaytype == "range" && this.dateattrto) {
 					var date2 = new Date(obj.get(this.dateattrto));
-					$(this.selector).datepicker('setDates', [date1, date2]); 
+					$(this.selector).datepicker('setDates', [date1, date2]);
 				} else {
 					if (date1 != this.date1) {
 						logger.debug('selector', this.selector);
@@ -234,18 +287,18 @@ define([
 				$(this.selector).datepicker('setEndDate', new Date(obj.get(this.dateattrend)));
 			}
 			this._getValidDates();
-			this._clearValidations(); 
-        },
-        _getValidDates: function() {
-            logger.debug(this.id + '._getResourcesFromXPath');
+			this._clearValidations();
+		},
+		_getValidDates: function () {
+			logger.debug(this.id + '._getResourcesFromXPath');
 			// retrieve only resources connected to scheduleditems.
 			// get resource from Schedule_ScheduledItem/ScheduledItem
 			if (this.validdateentity) {
 				var validDateEntityName = this.validdateentity.split('/')[1];
 				var dateReference = this.validdateentity.split('/')[0];
-						
+
 				if (this._contextObj) {
-					var xpath = "//" + validDateEntityName  + "[" + dateReference + "='" + this._contextObj.getGuid() + "']";
+					var xpath = "//" + validDateEntityName + "[" + dateReference + "='" + this._contextObj.getGuid() + "']";
 					mx.data.get({
 						xpath: xpath,
 						filter: this.resfilter,
@@ -255,17 +308,17 @@ define([
 					logger.warn(this.id + "._getValidDates -- Warning: No context object available.");
 				}
 			}
-        },
-		_receivedDates: function(objs) {
+		},
+		_receivedDates: function (objs) {
 			var i;
-            logger.debug(objs.length + ' Valid dates received!');	
+			logger.debug(objs.length + ' Valid dates received!');
 			this.validDates = [];
 			for (i = 0; i < objs.length; i++) {
-				this.validDates.push(new Date (objs[i].get(this.validdateattr)));	
+				this.validDates.push(new Date(objs[i].get(this.validdateattr)));
 			}
 			$(this.selector).datepicker("update");
 		},
-		beforeShowDay: function(d) {
+		beforeShowDay: function (d) {
 			var i;
 			if (this.validDates) {
 				//console.log('before show ' + d);
@@ -273,39 +326,39 @@ define([
 					if (this.dateWithoutTimeSame(this.validDates[i], d)) {
 						//console.log('date found', d);
 						return {
-							classes: this.validdateclass 
+							classes: this.validdateclass
 						};
 					}
 				}
 			}
 		},
-        enable: function () {
+		enable: function () {
 			console.log('enable ' + this.id);
-			if (!this.readonly) { 
+			if (!this.readonly) {
 				this.enabled = true;
 				$(this.selector).removeAttr("readonly");
 				$(this.selector).add("readonly");
 				domClass.remove(this.domNode, "btdatepicker-disabled");
 			}
-        },
+		},
 
-        disable: function () {
+		disable: function () {
 			console.log('disable ' + this.id);
 			this.enabled = false;
 			$(this.selector).attr("readonly", "true");
 			domClass.add(this.domNode, "btdatepicker-disabled");
-        },
-		
-		_setDisabledAttr: function(value) {
-			if (value) {
-				this.disable();
-			} else { 
-				this.enable();
-			}			
 		},
 
-        uninitialize: function () {
-			if(this._handles){
+		_setDisabledAttr: function (value) {
+			if (value) {
+				this.disable();
+			} else {
+				this.enable();
+			}
+		},
+
+		uninitialize: function () {
+			if (this._handles) {
 				this._handles.forEach(function (handle, i) {
 					if (handle) {
 						mx.data.unsubscribe(handle);
@@ -313,62 +366,63 @@ define([
 				});
 			}
 		},
-		
-		_handleValidation: function(validations) {
-			this._clearValidations();
-			
-			var val = validations[0];
-			var msg = val.getReasonByAttribute(this.dateattr);    
 
-			if(this.readOnly){
+		_handleValidation: function (validations) {
+			this._clearValidations();
+
+			var val = validations[0];
+			var msg = val.getReasonByAttribute(this.dateattr);
+
+			if (this.readOnly) {
 				val.removeAttribute(this.dateattr);
-			} else {                                
+			} else {
 				if (msg) {
 					this._addValidation(msg);
 					val.removeAttribute(this.dateattr);
 				}
 			}
 		},
-		
-		_clearValidations: function() {
+
+		_clearValidations: function () {
 			domConstruct.destroy(this._alertdiv);
 		},
-		
-		_addValidation : function(msg) {
-			this._alertdiv = domConstruct.create("div", { 
-				'class' : 'alert alert-danger',
-				innerHTML: msg });
-			
+
+		_addValidation: function (msg) {
+			this._alertdiv = domConstruct.create("div", {
+				'class': 'alert alert-danger',
+				innerHTML: msg
+			});
+
 			this.domNode.appendChild(this._alertdiv);
-		},		
-		
+		},
+
 		resetSubscriptions: function () {
-			var objHandle = null, 
-				attrHandle = null, 
+			var objHandle = null,
+				attrHandle = null,
 				attrHandleTo = null,
 				validationHandle = null,
 				attrHandle2 = null,
 				attrHandleStart = null,
 				attrHandleEnd = null;
-			
+
 			// Release handles on previous object, if any.
-			if(this._handles){
+			if (this._handles) {
 				this._handles.forEach(function (handle, i) {
 					mx.data.unsubscribe(handle);
 				});
 			}
 
-            if (this._contextObj) {
+			if (this._contextObj) {
 				objHandle = this.subscribe({
 					guid: this._contextObj.getGuid(),
-					callback: lang.hitch(this,function(guid) {
+					callback: lang.hitch(this, function (guid) {
 						this._updateRendering();
 					})
 				});
-                attrHandle = this.subscribe({
-                    guid: this._contextObj.getGuid(),
-                    attr: this.dateattr,
-					callback: lang.hitch(this,function(guid,attr,attrValue) {
+				attrHandle = this.subscribe({
+					guid: this._contextObj.getGuid(),
+					attr: this.dateattr,
+					callback: lang.hitch(this, function (guid, attr, attrValue) {
 						logger.debug('update attr', new Date(attrValue), this.id, this.selector);
 						var newdate1 = new Date(attrValue);
 						if (!this.dateWithoutTimeSame(newdate1, this.date1)) {
@@ -381,16 +435,16 @@ define([
 							this.date1 = newdate1;
 						}
 					})
-                });
+				});
 				if (this.dateattrto) {
 					attrHandleTo = this.subscribe({
 						guid: this._contextObj.getGuid(),
 						attr: this.dateattrto,
-						callback: lang.hitch(this,function(guid,attr,attrValue) {
+						callback: lang.hitch(this, function (guid, attr, attrValue) {
 							//$(this.selector).find('#endTime').datepicker('update', new Date(attrValue)); 
 							this.date2 = new Date(attrValue);
-							$(this.selector).datepicker('setDate', [this.date1, this.date2]); 
-							
+							$(this.selector).datepicker('setDate', [this.date1, this.date2]);
+
 							logger.debug('update attr', attr, attrValue);
 							//this._updateRendering();
 						})
@@ -400,8 +454,8 @@ define([
 					attrHandleStart = this.subscribe({
 						guid: this._contextObj.getGuid(),
 						attr: this.dateattrstart,
-						callback: lang.hitch(this,function(guid,attr,attrValue) {
-							$(this.selector).datepicker('setStartDate', attrValue?new Date(attrValue):false);
+						callback: lang.hitch(this, function (guid, attr, attrValue) {
+							$(this.selector).datepicker('setStartDate', attrValue ? new Date(attrValue) : false);
 							logger.debug('update start date ', attr, attrValue);
 						})
 					});
@@ -410,37 +464,37 @@ define([
 					attrHandleEnd = this.subscribe({
 						guid: this._contextObj.getGuid(),
 						attr: this.dateattrend,
-						callback: lang.hitch(this,function(guid,attr,attrValue) {
-							$(this.selector).datepicker('setEndDate', attrValue?new Date(attrValue):false);
+						callback: lang.hitch(this, function (guid, attr, attrValue) {
+							$(this.selector).datepicker('setEndDate', attrValue ? new Date(attrValue) : false);
 							logger.debug('update end date', attr, attrValue);
 						})
 					});
-				}				
-				
+				}
+
 				if (this.editableattr) {
 					attrHandle2 = this.subscribe({
 						guid: this._contextObj.getGuid(),
 						attr: this.editableattr,
-						callback: lang.hitch(this,function(guid,attr,attrValue) {
+						callback: lang.hitch(this, function (guid, attr, attrValue) {
 							if (attrValue) {
 								this.enable();
 							} else {
 								this.disable();
 							}
 						})
-					});		
+					});
 				}
-				
+
 				validationHandle = mx.data.subscribe({
-					guid     : this._contextObj.getGuid(),
-					val      : true,
-					callback : lang.hitch(this,this._handleValidation)
+					guid: this._contextObj.getGuid(),
+					val: true,
+					callback: lang.hitch(this, this._handleValidation)
 				});
-			
+
 				this._handles = [objHandle, attrHandle, validationHandle, attrHandle2, attrHandleTo, attrHandleStart, attrHandleEnd];
-            }
-        },
-		dateWithoutTimeSame : function(date1, date2) {
+			}
+		},
+		dateWithoutTimeSame: function (date1, date2) {
 			var d1 = new Date(date1);
 			var d2 = new Date(date2);
 			d1.setHours(0, 0, 0, 0);
@@ -451,7 +505,7 @@ define([
 			// copy paste content from the locale file you want to extend
 			$.fn.datepicker.dates.nl = {
 				days: ["Zondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"],
-				daysShort: ["Zo", "Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"],  
+				daysShort: ["Zo", "Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"],
 				daysMin: ["Zo", "Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"],
 				months: ["Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli", "Augustus", "September", "Oktober", "November", "December"],
 				monthsShort: ["Jan", "Feb", "Mrt", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"],
@@ -492,7 +546,7 @@ define([
 				clear: "Limpar",
 				weekStart: 1,
 				format: "dd/mm/yyyy"
-			};	
+			};
 
 			$.fn.datepicker.dates.es = {
 				days: ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"],
@@ -515,16 +569,14 @@ define([
 				clear: "Effacer",
 				weekStart: 1,
 				format: "dd/mm/yyyy"
-			};			
+			};
 		}
 
- 
-    });
+
+	});
 });
 
 require(["BootstrapDatepicker/widget/BootstrapDatepicker"], function () {
-    "use strict";
-    return;
+	"use strict";
+	return;
 });
-
-
