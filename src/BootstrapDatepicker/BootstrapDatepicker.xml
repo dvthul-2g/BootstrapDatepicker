@@ -124,7 +124,7 @@
       <description>Time added to date</description>
     </property>
     <property key="mfToExecute" required="false" type="microflow">
-      <caption>On change</caption>
+      <caption>On change microflow</caption>
       <category>Events</category>
       <description>Onchange microflow</description>
       <returnType type="Void"/>
@@ -134,6 +134,12 @@
       <category>Events</category>
       <description>Skip onChange when previous microflow call is not finished.</description>
     </property>	
+    <property key="nfToExecute" required="false" type="nanoflow">
+      <caption>On change nanoflow</caption>
+      <category>Events</category>
+      <description>Onchange nanoflow</description>
+      <returnType type="Void"/>
+    </property>
     <property defaultValue="" key="daysofweekdisabled" required="false" type="string">
       <caption>Disabled days</caption>
       <category>Display</category>
@@ -158,6 +164,11 @@
       <caption>Read-only</caption>
       <category>Display</category>
       <description>Date is readonly</description>
+    </property>	
+    <property key="inputplaceholder" required="false" type="string">
+      <caption>Input placeholder</caption>
+      <category>Display</category>
+      <description>Input field placeholder text</description>
     </property>	
   </properties>
 </widget>
