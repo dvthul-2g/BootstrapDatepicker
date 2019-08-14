@@ -81,7 +81,7 @@
 		<description>Reference set to valid dates</description>
 	</property>	
 	<property key="validdateattr" type="attribute" entityProperty="validdateentity" required="false">
-		<caption>Valid Date attr</caption>
+		<caption>Valid date attr</caption>
 		<category>Valid dates</category>
 		<description>DateTime attribute containing start date/time (required)</description>
 		<attributeTypes>
@@ -111,7 +111,7 @@
     <property key="displayFormat" defaultValue="" type="translatableString" required="false">  
       <caption>Date format</caption>
       <category>Display</category>
-      <description>The date format, combination of d, dd, D, DD, m, mm, M, MM, yy, yyyy. If empty the user/locale defaults are taken.</description>
+      <description>The date format, combination of d, dd, D, DD, m, mm, M, MM, yy, yyyy. If empty the user/locale defaults are used.</description>
     </property>		
     <property defaultValue="false" key="autoclose" type="boolean">
       <caption>Auto close</caption>
@@ -134,7 +134,7 @@
       <category>Events</category>
       <description>Skip onChange when previous microflow call is not finished.</description>
     </property>	
-    <property key="nfToExecute" required="false" type="nanoflow">
+    <property key="nanoflow" type="nanoflow" required="false" >
       <caption>On change nanoflow</caption>
       <category>Events</category>
       <description>Onchange nanoflow</description>

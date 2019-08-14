@@ -211,10 +211,10 @@ define([
 			}
 		},
 		callnf: function (nanoflow) {
-			logger.debug(this.id + " callnf");
-			if (nanoflow.nanoflow && this._contextObj) {
+			if (this.nanoflow.nanoflow && this.mxcontext) {
+				logger.debug(this.id + " callnf");
 				mx.data.callNanoflow({
-					nanoflow: nanoflow,
+					nanoflow: this.nanoflow,
 					origin: this.mxform,
 					context: this.mxcontext,
 					error: function(error) {
