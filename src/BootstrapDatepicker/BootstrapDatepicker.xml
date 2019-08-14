@@ -111,7 +111,7 @@
     <property key="displayFormat" defaultValue="" type="translatableString" required="false">  
       <caption>Date format</caption>
       <category>Display</category>
-      <description>The date format, combination of d, dd, D, DD, m, mm, M, MM, yy, yyyy.</description>
+      <description>The date format, combination of d, dd, D, DD, m, mm, M, MM, yy, yyyy. If empty the user/locale defaults are taken.</description>
     </property>		
     <property defaultValue="false" key="autoclose" type="boolean">
       <caption>Auto close</caption>
@@ -154,6 +154,26 @@
       <category>General</category>
       <description>Limit selectable dates, format: +3d (3 days ahead), +2w (2 weeks), +4m (4 months), +1y (1 year)</description>
     </property>		
+   <property defaultValue="auto" key="verticalorientation" type="enumeration">
+      <caption>Vertical orientation</caption>
+      <category>Display</category>
+      <description>Vertical orientation of the selector relative to the input field</description>
+      <enumerationValues>
+        <enumerationValue key="auto">Auto</enumerationValue>
+        <enumerationValue key="bottom">Above</enumerationValue>
+        <enumerationValue key="top">Below</enumerationValue>
+      </enumerationValues>
+    </property>
+    <property defaultValue="auto" key="horizontalorientation" type="enumeration">
+      <caption>Horizontal orientation</caption>
+      <category>Display</category>
+      <description>Horizontal orientation of the selector relative to the input field</description>
+      <enumerationValues>
+        <enumerationValue key="auto">Auto</enumerationValue>
+        <enumerationValue key="left">Left</enumerationValue>
+        <enumerationValue key="right">Right</enumerationValue>
+      </enumerationValues>
+    </property>	
     <property defaultValue="false" key="readonly" type="boolean">
       <caption>Read-only</caption>
       <category>Display</category>

@@ -1536,6 +1536,11 @@
 					this.fill();
 					this.hide();
 					break;
+				// cdg delete
+				case 46: 
+					this._trigger('clearDate');
+					break;
+				// cdg
 			}
 			if (dateChanged){
 				if (this.dates.length)
@@ -1770,7 +1775,6 @@
 		'weekStart'
 	];
 	$.fn.datepicker.Constructor = Datepicker;
-	console.log('$ datepicker', $.fn.datepicker);//cdg
 	var dates = $.fn.datepicker.dates = {
 		en: {
 			days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
