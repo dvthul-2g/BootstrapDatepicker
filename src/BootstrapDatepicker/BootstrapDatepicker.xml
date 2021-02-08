@@ -13,6 +13,7 @@
         <enumerationValue key="component">Component</enumerationValue>
         <enumerationValue key="embedded">Embedded</enumerationValue>
         <enumerationValue key="range">Range</enumerationValue>
+        <enumerationValue key="startendrange">Start-end</enumerationValue>
       </enumerationValues>
     </property>
     <property defaultValue="0" key="weekstart" type="integer">
@@ -24,7 +25,7 @@
       <caption>Startview</caption>
       <category>Display</category>
       <description>0/days, 1/Months, 2/Years, 3/Decades, 4/Centuries </description>
-    </property>	
+    </property>
     <property defaultValue="false" key="todaybutton" type="boolean">
       <caption>Today button</caption>
       <category>Display</category>
@@ -58,7 +59,7 @@
       <attributeTypes>
         <attributeType name="DateTime"/>
       </attributeTypes>
-    </property>	
+    </property>
     <property key="dateattrend" type="attribute" required="false">
       <caption>Maximal date attribute</caption>
       <category>Data source</category>
@@ -66,7 +67,7 @@
       <attributeTypes>
         <attributeType name="DateTime"/>
       </attributeTypes>
-    </property>	
+    </property>
     <property key="editableattr" type="attribute" required="false">
       <caption>Editable attribute</caption>
       <category>Data source</category>
@@ -74,12 +75,12 @@
       <attributeTypes>
         <attributeType name="Boolean"/>
       </attributeTypes>
-    </property>	
+    </property>
 	<property key="validdateentity" type="entity" isPath="yes" pathType="referenceSet" required="false">
 		<caption>Valid dates</caption>
 		<category>Valid dates</category>
 		<description>Reference set to valid dates</description>
-	</property>	
+	</property>
 	<property key="validdateattr" type="attribute" entityProperty="validdateentity" required="false">
 		<caption>Valid date attr</caption>
 		<category>Valid dates</category>
@@ -87,17 +88,17 @@
 		<attributeTypes>
 			<attributeType name="DateTime"/>
 		</attributeTypes>
-	</property>	
-    <property key="validdateclass" defaultValue="datepickervaliddate" type="string" required="false">  
+	</property>
+    <property key="validdateclass" defaultValue="datepickervaliddate" type="string" required="false">
       <caption>Class to add</caption>
       <category>Valid dates</category>
       <description>Classname that will be added to dates in the valid date assocation</description>
-    </property>		
+    </property>
 	<property key="listentochanges" defaultValue="true" type="boolean">
       <caption>Listen to changes</caption>
       <category>Data source</category>
       <description>Datepicker will reflect date changes in microflows and other attributes.</description>
-    </property>	
+    </property>
     <property key="todayhighlight" defaultValue="false"  type="boolean">
       <caption>Highlight today</caption>
       <category>Display</category>
@@ -107,12 +108,12 @@
       <caption>Show weeknumbers</caption>
       <category>Display</category>
       <description>Show calender weeks</description>
-    </property>	
-    <property key="displayFormat" defaultValue="" type="translatableString" required="false">  
+    </property>
+    <property key="displayFormat" defaultValue="" type="translatableString" required="false">
       <caption>Date format</caption>
       <category>Display</category>
       <description>The date format, combination of d, dd, D, DD, m, mm, M, MM, yy, yyyy. If empty the user/locale defaults are used.</description>
-    </property>		
+    </property>
     <property defaultValue="false" key="autoclose" type="boolean">
       <caption>Auto close</caption>
       <category>General</category>
@@ -133,7 +134,7 @@
       <caption>Disallow concurrent</caption>
       <category>Events</category>
       <description>Skip onChange when previous microflow call is not finished.</description>
-    </property>	
+    </property>
     <property key="nanoflow" type="nanoflow" required="false" >
       <caption>On change nanoflow</caption>
       <category>Events</category>
@@ -154,12 +155,12 @@
       <caption>Limit start date</caption>
       <category>General</category>
       <description>Limit selectable dates, format: -3d (3 days ago), -2w (2 weeks ago), -4m (4 months ago), -1y (1 year ago)</description>
-    </property>	
+    </property>
     <property key="limitend" required="false" type="string">
       <caption>Limit end date</caption>
       <category>General</category>
       <description>Limit selectable dates, format: +3d (3 days ahead), +2w (2 weeks), +4m (4 months), +1y (1 year)</description>
-    </property>		
+    </property>
    <property defaultValue="auto" key="verticalorientation" type="enumeration">
       <caption>Vertical orientation</caption>
       <category>Display</category>
@@ -179,16 +180,16 @@
         <enumerationValue key="left">Left</enumerationValue>
         <enumerationValue key="right">Right</enumerationValue>
       </enumerationValues>
-    </property>	
+    </property>
     <property defaultValue="false" key="readonly" type="boolean">
       <caption>Read-only</caption>
       <category>Display</category>
       <description>Date is readonly</description>
-    </property>	
+    </property>
     <property key="inputplaceholder" required="false" type="string">
       <caption>Input placeholder</caption>
       <category>Display</category>
       <description>Input field placeholder text</description>
-    </property>	
+    </property>
   </properties>
 </widget>
